@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Feedback Analyzer</title>
+  <!-- Link to your CSS file here -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Feedback Analyzer</h2>
+    <textarea id="feedback" rows="6" cols="50" placeholder="Enter your feedback here..."></textarea><br>
+    <button id="analyze-button">Analyze Sentiment</button>
+    <div id="loading-indicator" class="loading-spinner" style="display:none;"></div>
+    <div id="result-container" style="display:none;">
+      <h3>Analysis Result:</h3>
+      <p><strong>Text:</strong> <span id="analyzed-text"></span></p>
+      <p><strong>Overall Sentiment:</strong> <span id="overall-sentiment"></span></p>
+      <p><strong>Confidence Scores:</strong></p>
+      <ul id="confidence-scores"></ul>
+    </div>
+  </div>
+
+  <!-- Link to your JavaScript file here -->
+  <script src="script.js"></script>
+</body>
+</html>
