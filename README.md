@@ -1,8 +1,8 @@
-Sentiment Analysis Project: Your Feedback Analyzer
+# Sentiment Analysis Project: Your Feedback Analyzer
 
 This document serves as a comprehensive guide for deploying a serverless sentiment analysis application on AWS. The project enables users to submit text feedback, which is then analyzed for sentiment and stored in a database, with results displayed via a web interface.
 
-Project Overview
+### Project Overview
 
 The application operates through the following workflow:
 
@@ -14,14 +14,14 @@ The application operates through the following workflow:
   * Result Delivery: The sentiment analysis results are returned to the frontend via API Gateway.
   * User Display: The web page dynamically updates to display the analyzed sentiment.
 
-Prerequisites
+### Prerequisites
 
 To successfully deploy and operate this project, ensure you have:
 
-  * An active AWS Account.
-  * Access to the AWS Management Console.
-  * AWS Command Line Interface (CLI) installed and configured with appropriate credentials on your local machine. This is essential for executing the provided setup scripts.
-  * All project code files: `index.html`, `style.css`, `script.js`, and `lambda_function.py`.
+>  * An active AWS Account.
+> * Access to the AWS Management Console.
+>  * AWS Command Line Interface (CLI) installed and configured with appropriate credentials on your local machine. This is essential for executing the provided setup scripts.
+>  * All project code files: `index.html`, `style.css`, `script.js`, and `lambda_function.py`.
 
 -----
 
