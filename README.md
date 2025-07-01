@@ -1,49 +1,40 @@
-````markdown
-# Sentiment Analysis Project: Your Feedback Analyzer
+Sentiment Analysis Project: Your Feedback Analyzer
 
 This document serves as a comprehensive guide for deploying a serverless sentiment analysis application on AWS. The project enables users to submit text feedback, which is then analyzed for sentiment and stored in a database, with results displayed via a web interface.
 
-## Project Overview
+Project Overview
 
 The application operates through the following workflow:
 
-* **User Input:** Text feedback is submitted via a simple web page.
+  * User Input: Text feedback is submitted via a simple web page.
+  * API Invocation: The frontend sends the input text to an AWS API Gateway endpoint.
+  * Lambda Processing: API Gateway triggers an AWS Lambda function.
+  * Sentiment Analysis: The Lambda function utilizes Amazon Comprehend to perform sentiment analysis on the provided text.
+  * Data Persistence: The original text, determined sentiment, and associated confidence scores are securely stored in an Amazon DynamoDB table.
+  * Result Delivery: The sentiment analysis results are returned to the frontend via API Gateway.
+  * User Display: The web page dynamically updates to display the analyzed sentiment.
 
-* **API Invocation:** The frontend sends the input text to an AWS API Gateway endpoint.
-
-* **Lambda Processing:** API Gateway triggers an AWS Lambda function.
-
-* **Sentiment Analysis:** The Lambda function utilizes Amazon Comprehend to perform sentiment analysis on the provided text.
-
-* **Data Persistence:** The original text, determined sentiment, and associated confidence scores are securely stored in an Amazon DynamoDB table.
-
-* **Result Delivery:** The sentiment analysis results are returned to the frontend via API Gateway.
-
-* **User Display:** The web page dynamically updates to display the analyzed sentiment.
-
-## Prerequisites
+Prerequisites
 
 To successfully deploy and operate this project, ensure you have:
 
-* An active AWS Account.
+  * An active AWS Account.
+  * Access to the AWS Management Console.
+  * AWS Command Line Interface (CLI) installed and configured with appropriate credentials on your local machine. This is essential for executing the provided setup scripts.
+  * All project code files: `index.html`, `style.css`, `script.js`, and `lambda_function.py`.
 
-* Access to the AWS Management Console.
-
-* **AWS Command Line Interface (CLI)** installed and configured with appropriate credentials on your local machine. This is essential for executing the provided setup scripts.
-
-* All project code files: `index.html`, `style.css`, `script.js`, and `lambda_function.py`.
+-----
 
 ## AWS Setup Procedures
 
 This section outlines the steps to configure the necessary AWS resources. You can choose between two primary setup methods for most steps:
 
-* **Option A: Manual Setup (AWS Console)** - Ideal for users who prefer a visual, step-by-step approach within the AWS Console.
-
-* **Option B: CLI-Assisted Setup (Terminal Scripts)** - Recommended for users comfortable with command-line operations, offering a faster deployment process.
+  * **Option A: Manual Setup (AWS Console)** - Ideal for users who prefer a visual, step-by-step approach within the AWS Console.
+  * **Option B: CLI-Assisted Setup (Terminal Scripts)** - Recommended for users comfortable with command-line operations, offering a faster deployment process.
 
 **Crucial Note:** Select a single AWS Region (e.g., `us-east-1`, `ap-south-1`) and use it consistently for all AWS services deployed in this project.
 
-**Before proceeding with either option, define your configuration variables. Copy and paste the following into your terminal and execute it once:**
+**Before proceeding with any setup steps, define your configuration variables. Copy and paste the following into your terminal and execute it once:**
 
 ```bash
 # --- Configuration Variables (Update these values) ---
@@ -59,7 +50,7 @@ API_GATEWAY_NAME="SentimentAnalysisAPI"
 API_GATEWAY_ROUTE_PATH="/analyze"
 
 echo "Configuration variables have been set. Proceed with the setup steps below."
-````
+```
 
 -----
 
@@ -69,25 +60,16 @@ This role grants your Lambda function the necessary permissions to interact with
 
 **Option A: Manual Setup (AWS Console)**
 
-  * Navigate to the **IAM Console** \> **Roles**.
-
-  * Click **Create role**.
-
-  * For "Trusted entity type", select "AWS service", then choose "Lambda" from the use case dropdown.
-
-  * Proceed to "Add permissions". Search for and attach the following managed policies:
-
-      * `AWSLambdaBasicExecutionRole` (Enables logging to CloudWatch).
-
-      * `AmazonDynamoDBFullAccess` (Allows read/write access to DynamoDB).
-
-      * `ComprehendFullAccess` (Grants permission to call Amazon Comprehend).
-
-  * Click "Next".
-
-  * **Name the role:** `SentimentAnalysisLambdaRole`.
-
-  * Click **Create role**.
+> 1.  Navigate to the **IAM Console** \> **Roles**.
+> 2.  Click **Create role**.
+> 3.  For "Trusted entity type", select "AWS service", then choose "Lambda" from the use case dropdown.
+> 4.  Proceed to "Add permissions". Search for and attach the following managed policies:
+>       * `AWSLambdaBasicExecutionRole` (Enables logging to CloudWatch).
+>       * `AmazonDynamoDBFullAccess` (Allows read/write access to DynamoDB).
+>       * `ComprehendFullAccess` (Grants permission to call Amazon Comprehend).
+> 5.  Click "Next".
+> 6.  **Name the role:** `SentimentAnalysisLambdaRole`.
+> 7.  Click **Create role**.
 
 **Option B: CLI Script (Terminal)**
 
@@ -127,15 +109,11 @@ This table will serve as your database for storing sentiment analysis results.
 
 **Option A: Manual Setup (AWS Console)**
 
-  * Navigate to the **DynamoDB Console** \> **Tables**.
-
-  * Click **Create table**.
-
-  * **Table name:** Enter `SentimentAnalysisResults`. (This name **must** precisely match the table name specified in your `lambda_function.py` code).
-
-  * **Partition key:** Enter `id` (ensure "String" is selected as the type).
-
-  * Click **Create table**.
+> 1.  Navigate to the **DynamoDB Console** \> **Tables**.
+> 2.  Click **Create table**.
+> 3.  **Table name:** Enter `SentimentAnalysisResults`. (This name **must** precisely match the table name specified in your `lambda_function.py` code).
+> 4.  **Partition key:** Enter `id` (ensure "String" is selected as the type).
+> 5.  Click **Create table**.
 
 **Option B: CLI Script (Terminal)**
 
@@ -161,31 +139,19 @@ This step involves creating the Lambda function and deploying your Python backen
 
 **Manual Setup (AWS Console - REQUIRED):**
 
-1.  Navigate to the **Lambda Console** \> **Create function**.
-
-2.  Choose "Author from scratch".
-
-3.  **Function name:** Enter `SentimentAnalysisFunction`. (Use this exact name for consistency with later steps).
-
-4.  **Runtime:** Select `Python 3.9` (or a newer Python version if available).
-
-5.  **Execution role:** Choose "Use an existing role" and select the `SentimentAnalysisLambdaRole` you created in Step 1.
-
-6.  Click **Create function**.
-
-7.  Once the function is created, go to its "Code" tab.
-
-8.  **Replace the entire content of the default `lambda_function.py` file with your project's `lambda_function.py` code.**
-
-9.  Click **"Deploy"** to save and deploy your code changes.
-
-10. Go to the **"Configuration"** tab, then "General configuration". Click "Edit".
-
-      * **Memory:** Set to `256 MB` (or `512 MB` for potentially faster execution).
-
-      * **Timeout:** Set to `30 seconds` (to allow sufficient time for Comprehend analysis).
-
-      * Click **"Save"**.
+> 1.  Navigate to the **Lambda Console** \> **Create function**.
+> 2.  Choose "Author from scratch".
+> 3.  **Function name:** Enter `SentimentAnalysisFunction`. (Use this exact name for consistency with later steps).
+> 4.  **Runtime:** Select `Python 3.9` (or a newer Python version if available).
+> 5.  **Execution role:** Choose "Use an existing role" and select the `SentimentAnalysisLambdaRole` you created in Step 1.
+> 6.  Click **Create function**.
+> 7.  Once the function is created, go to its "Code" tab.
+> 8.  **Replace the entire content of the default `lambda_function.py` file with your project's `lambda_function.py` code.**
+> 9.  Click **"Deploy"** to save and deploy your code changes.
+> 10. Go to the **"Configuration"** tab, then "General configuration". Click "Edit".
+>       * **Memory:** Set to `256 MB` (or `512 MB` for potentially faster execution).
+>       * **Timeout:** Set to `30 seconds` (to allow sufficient time for Comprehend analysis).
+>       * Click **"Save"**.
 
 -----
 
@@ -195,29 +161,18 @@ This establishes the public HTTP endpoint for your frontend to communicate with 
 
 **Option A: Manual Setup (AWS Console)**
 
-  * Navigate to the **API Gateway Console** \> **Create API**.
-
-  * Select **"HTTP API"** and click "Build".
-
-  * **API name:** Enter `SentimentAnalysisAPI`.
-
-  * Click "Next".
-
-  * **Configure Routes:**
-
-      * **Method:** Select `POST`.
-
-      * **Path:** Enter `/analyze`.
-
-  * Click "Next".
-
-  * **Define Integrations:**
-
-      * **Integration target:** Select `Lambda function`.
-
-      * **Lambda function:** Choose `SentimentAnalysisFunction` from the dropdown.
-
-  * Click "Next", then **Review and Create**.
+> 1.  Navigate to the **API Gateway Console** \> **Create API**.
+> 2.  Select **"HTTP API"** and click "Build".
+> 3.  **API name:** Enter `SentimentAnalysisAPI`.
+> 4.  Click "Next".
+> 5.  **Configure Routes:**
+>       * **Method:** Select `POST`.
+>       * **Path:** Enter `/analyze`.
+> 6.  Click "Next".
+> 7.  **Define Integrations:**
+>       * **Integration target:** Select `Lambda function`.
+>       * **Lambda function:** Choose `SentimentAnalysisFunction` from the dropdown.
+> 8.  Click "Next", then **Review and Create**.
 
 **Option B: CLI Script (Terminal)**
 
@@ -240,7 +195,7 @@ This connects your newly created API Gateway to your Lambda function.
 
 **Option A: Manual Setup (AWS Console)**
 
-  * If you followed the manual steps for API Gateway creation (Step 4), this integration was likely configured as part of that process. Verify that your `POST /analyze` route is correctly integrated with your `SentimentAnalysisFunction`.
+>   * If you followed the manual steps for API Gateway creation (Step 4), this integration was likely configured as part of that process. Verify that your `POST /analyze` route is correctly integrated with your `SentimentAnalysisFunction`.
 
 **Option B: CLI Script (Terminal)**
 
@@ -269,7 +224,7 @@ This defines the specific URL path for your API and deploys it to a stage.
 
 **Option A: Manual Setup (AWS Console)**
 
-  * If you followed the manual steps for API Gateway creation (Step 4), the `POST /analyze` route should already be defined, and a `$default` stage should have been automatically deployed.
+>   * If you followed the manual steps for API Gateway creation (Step 4), the `POST /analyze` route should already be defined, and a `$default` stage should have been automatically deployed.
 
 **Option B: CLI Script (Terminal)**
 
@@ -303,7 +258,7 @@ This permission allows API Gateway to trigger your Lambda function when a reques
 
 **Option A: Manual Setup (AWS Console)**
 
-  * AWS typically configures this permission automatically when you integrate Lambda with API Gateway. To verify, navigate to your `SentimentAnalysisFunction` in the Lambda Console. Under the "Configuration" tab, then "Permissions", look for a resource-based policy statement that grants `apigateway.amazonaws.com` permission to invoke your function.
+>   * AWS typically configures this permission automatically when you integrate Lambda with API Gateway. To verify, navigate to your `SentimentAnalysisFunction` in the Lambda Console. Under the "Configuration" tab, then "Permissions", look for a resource-based policy statement that grants `apigateway.amazonaws.com` permission to invoke your function.
 
 **Option B: CLI Script (Terminal)**
 
@@ -330,17 +285,12 @@ Cross-Origin Resource Sharing (CORS) settings are crucial for your frontend (ser
 
 **Option A: Manual Setup (AWS Console)**
 
-  * In the API Gateway Console, select your `SentimentAnalysisAPI`.
-
-  * Navigate to the **CORS** section.
-
-  * **Access-Control-Allow-Headers:** Add `Content-Type`.
-
-  * **Access-Control-Allow-Methods:** Select `POST` and `OPTIONS`.
-
-  * **Access-Control-Allow-Origin:** Enter `*` (This allows requests from any origin, suitable for development. For production, replace `*` with your specific frontend domain, e.g., `https://your-domain.com`).
-
-  * Click **Save**.
+> 1.  In the API Gateway Console, select your `SentimentAnalysisAPI`.
+> 2.  Navigate to the **CORS** section.
+> 3.  **Access-Control-Allow-Headers:** Add `Content-Type`.
+> 4.  **Access-Control-Allow-Methods:** Select `POST` and `OPTIONS`.
+> 5.  **Access-Control-Allow-Origin:** Enter `*` (This allows requests from any origin, suitable for development. For production, replace `*` with your specific frontend domain, e.g., `https://your-domain.com`).
+> 6.  Click **Save**.
 
 **Option B: CLI Script (Terminal)**
 
@@ -363,7 +313,7 @@ This step retrieves the complete URL of your deployed API endpoint, which you'll
 
 **Option A: Manual Setup (AWS Console)**
 
-  * In the API Gateway Console, select your `SentimentAnalysisAPI`. The "Invoke URL" is displayed prominently at the top of its summary page. Copy this URL and append `/analyze` to it.
+>   * In the API Gateway Console, select your `SentimentAnalysisAPI`. The "Invoke URL" is displayed prominently at the top of its summary page. Copy this URL and append `/analyze` to it.
 
 **Option B: CLI Script (Terminal)**
 
@@ -424,8 +374,3 @@ To prevent incurring unnecessary charges, it is crucial to delete all AWS resour
 3.  **Delete DynamoDB Table:** Navigate to DynamoDB, select `SentimentAnalysisResults`, and proceed with deletion.
 
 4.  **Delete IAM Role:** Navigate to IAM, select `SentimentAnalysisLambdaRole`, and proceed with deletion. (Note: You may need to manually detach any attached policies from the role before it can be deleted, if AWS does not do so automatically).
-
-<!-- end list -->
-
-```
-```
